@@ -1605,15 +1605,11 @@ function findCordovaPath() {
 // This is an async process, but onDeviceReady is blocked on onPluginsReady.
 // onPluginsReady is fired when there are no plugins to load, or they are all done.
 exports.load = function(callback) {
-    var pathPrefix = findCordovaPath();
-    if (pathPrefix === null) {
-        console.log('Could not find cordova.js script tag. Plugin loading may fail.');
-        pathPrefix = '';
-    }
-    injectIfNecessary('cordova/plugin_list', pathPrefix + 'cordova_plugins.js', function() {
-        var moduleList = require("cordova/plugin_list");
-        handlePluginsObject(pathPrefix, moduleList, callback);
-    }, callback);
+    var moduleList = require("cordova/plugin_list");
+    if (!moduleList.length)
+        callback();
+    else
+        onScriptLoadingComplete(moduleList, callback);
 };
 
 

@@ -1,5 +1,10 @@
 *.mode1v3
+*.mode2v3
+*.ipa
 *.perspectivev3
 *.pbxuser
+*.xccheckout
+*.xcuserstate
 .DS_Store
 build/
+xcuserdata
