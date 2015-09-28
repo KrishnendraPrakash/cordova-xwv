@@ -1,66 +1,34 @@
-<!--
-#
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-# 
-# http://www.apache.org/licenses/LICENSE-2.0
-# 
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-#  KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-#
--->
+# Cordova XWebView
 
-[![Build Status](https://travis-ci.org/apache/cordova-ios.svg)](https://travis-ci.org/apache/cordova-ios)
+# Introduction
 
-Cordova iOS
-=============================================================
-Cordova iOS is an iOS application library that allows for Cordova-based projects to be built for the iOS Platform. Cordova based applications are, at the core, applications written with web technology: HTML, CSS and JavaScript.
+Cordova XWebView is a customized platform of [Cordova](http://cordova.apache.org/) for [XWebView](https://github.com/XWebView/XWebView). It helps to reuse existing Cordova plugins with XWebView. You can easily create an XWebView plugin project which includes Cordova plugins by using Corodova CLI commands.
 
-<a href="http://cordova.apache.org">Apache Cordova</a> is a project of <a href="http://apache.org">The Apache Software Foundation (ASF)</a>.
+Cordova XWebView is based on Cordova iOS version 4.0.0-dev which is in developement currently. Some Cordova plugins may not work well with it.
 
-Requires:
+## Quick Start
 
-* Xcode 6.x or greater. Download it at [http://developer.apple.com/downloads](http://developer.apple.com/downloads) or the [Mac App Store](http://itunes.apple.com/us/app/xcode/id497799835?mt=12).
-<br />
-* [node.js](https://nodejs.org)
+1. [Install the Cordova CLI](http://cordova.apache.org/docs/en/edge/guide_cli_index.md.html#The%20Command-Line%20Interface_installing_the_cordova_cli)
 
+2. [Creat a Cordova project](http://cordova.apache.org/docs/en/edge/guide_cli_index.md.html#The%20Command-Line%20Interface_create_the_app)
 
-Create a Cordova project
--------------------------------------------------------------
+   It should not include HTML files in XWebView plugin, so use the `--copy-from` with an empty directory is recommended.
+   ```
+   cordova create Hello com.example.hello HelloWorld --copy-from=/an/empty/dir
+   ```
 
-Follow the instructions in the [**Command-Line Usage** section](http://cordova.apache.org/docs/en/edge/guide_cli_index.md.html#The%20Command-line%20Interface) of [http://docs.cordova.io](http://docs.cordova.io)
+3. Add the Cordova XWebView platform
 
-To use a **shared CordovaLib**, for example in development, link the appropriate cordova-ios platform folder path:
+   ```
+   cordova platform add https://github.com/xwebview/cordova-xwv.git
+   ```
 
-    cordova platform add --link /path/to/cordova-ios
-    
-<br />
+4. [Add Cordova plugins](http://cordova.apache.org/docs/en/edge/guide_cli_index.md.html#The%20Command-Line%20Interface_add_plugin_features)
 
-Updating a Cordova project
--------------------------------------------------------------
+5. [Build the plugin]
 
-When you install a new cordova-cli version that comes with a new iOS platform version, from within your project:
-
-    cordova platform update ios
-    
-Tests
---------------------------------------------------------------------
-
-1. Run `npm install`
-2. Run `npm test`
-
-Futher reading
------
-* [http://cordova.apache.org/](http://cordova.apache.org/)
-* [http://wiki.apache.org/cordova/](http://wiki.apache.org/cordova/)
-
-<br />
+   Open the Xcode project in `platform/ios` directory or use CLI:
+   ```
+   cordova build ios
+   ```
+   Becuase the target is a dynamic library, you can't run it on emulator.

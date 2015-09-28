@@ -23,6 +23,7 @@ var shell = require('shelljs'),
     Q = require ('q'),
     path = require('path'),
     fs = require('fs'),
+    git = require('./gitclone'),
     ROOT = path.join(__dirname, '..', '..');
 
 function createHelp() {
@@ -162,7 +163,7 @@ exports.createProject = function(project_path, package_name, project_name, opts)
 
     // create the project directory and copy over files
     shell.mkdir(project_path);
-    shell.cp('-rf', path.join(project_template_dir, 'www'), project_path);
+    shell.mkdir(path.join(project_path, 'www'));
     if (use_cli) {
         shell.cp('-rf', path.join(project_template_dir, '__CLI__.xcodeproj'), project_path);
         shell.mv(path.join(project_path, '__CLI__.xcodeproj'), path.join(project_path, project_name+'.xcodeproj'));
@@ -176,33 +177,55 @@ exports.createProject = function(project_path, package_name, project_name, opts)
 
     var r = path.join(project_path, project_name);
     shell.mv(path.join(r, '__PROJECT_NAME__-Info.plist'), path.join(r, project_name+'-Info.plist'));
-    shell.mv(path.join(r, '__PROJECT_NAME__-Prefix.pch'), path.join(r, project_name+'-Prefix.pch'));
+    shell.mv(path.join(r, '__PROJECT_NAME__.h'), path.join(r, project_name+'.h'));
+    shell.mv(path.join(r, '__PROJECT_NAME__ViewController.h'), path.join(r, project_name+'ViewController.h'));
+    shell.mv(path.join(r, '__PROJECT_NAME__ViewController.m'), path.join(r, project_name+'ViewController.m'));
+    shell.mv(path.join(r, '__PROJECT_NAME__ViewController.swift'), path.join(r, project_name+'ViewController.swift'));
     shell.mv(path.join(r, 'gitignore'), path.join(r, '.gitignore'));
+
+    var pub = path.resolve(project_template_dir, '../../../CordovaLib/Classes/Public');
+    [
+        'CDVAvailability.h',
+        'CDVAvailabilityDeprecated.h',
+        'CDVCommandDelegate.h',
+        'CDVCommandQueue.h',
+        'CDVInvokedUrlCommand.h',
+        'CDVPlugin.h',
+        'CDVPluginResult.h',
+        'CDVScreenOrientationDelegate.h',
+        'CDVURLRequestFilter.h',
+        'CDVViewController.h',
+        'CDVWebViewEngineProtocol.h',
+        'NSDictionary+CordovaPreferences.h',
+        'NSMutableArray+QueueAdditions.h'
+    ].forEach(function(file) {
+        shell.cp('-f', path.join(pub, file), r);
+    });
 
     /*replace __PROJECT_NAME__ and --ID-- with ACTIVITY and ID strings, respectively, in:
      *
      * - ./__PROJECT_NAME__.xcodeproj/project.pbxproj
-     * - ./__PROJECT_NAME__/Classes/AppDelegate.h
-     * - ./__PROJECT_NAME__/Classes/AppDelegate.m
-     * - ./__PROJECT_NAME__/Resources/main.m
+     * - ./__PROJECT_NAME__/__PROJECT_NAME__.h
+     * - ./__PROJECT_NAME__/__PROJECT_NAME__ViewController.h
+     * - ./__PROJECT_NAME__/__PROJECT_NAME__ViewController.m
+     * - ./__PROJECT_NAME__/__PROJECT_NAME__ViewController.swift
+     * - ./__PROJECT_NAME__/XWebView.swift
      * - ./__PROJECT_NAME__/Resources/__PROJECT_NAME__-info.plist
-     * - ./__PROJECT_NAME__/Resources/__PROJECT_NAME__-Prefix.plist
      */
     var project_name_esc = project_name.replace(/&/g, '\\&');
     shell.sed('-i', /__PROJECT_NAME__/g, project_name_esc, path.join(r+'.xcodeproj', 'project.pbxproj'));
-    shell.sed('-i', /__PROJECT_NAME__/g, project_name_esc, path.join(r, 'Classes', 'AppDelegate.h'));
-    shell.sed('-i', /__PROJECT_NAME__/g, project_name_esc, path.join(r, 'Classes', 'AppDelegate.m'));
-    shell.sed('-i', /__PROJECT_NAME__/g, project_name_esc, path.join(r, 'Classes', 'MainViewController.h'));
-    shell.sed('-i', /__PROJECT_NAME__/g, project_name_esc, path.join(r, 'Classes', 'MainViewController.m'));
-    shell.sed('-i', /__PROJECT_NAME__/g, project_name_esc, path.join(r, 'main.m'));
-    shell.sed('-i', /__PROJECT_NAME__/g, project_name_esc, path.join(r, project_name+'-Info.plist'));
-    shell.sed('-i', /__PROJECT_NAME__/g, project_name_esc, path.join(r, project_name+'-Prefix.pch'));
+    shell.sed('-i', /__PROJECT_NAME__/g, project_name_esc, path.join(r, project_name+'.h'));
+    shell.sed('-i', /__PROJECT_NAME__/g, project_name_esc, path.join(r, project_name+'ViewController.h'));
+    shell.sed('-i', /__PROJECT_NAME__/g, project_name_esc, path.join(r, project_name+'ViewController.m'));
+    shell.sed('-i', /__PROJECT_NAME__/g, project_name_esc, path.join(r, project_name+'ViewController.swift'));
+    shell.sed('-i', /__PROJECT_NAME__/g, project_name_esc, path.join(r, 'XWebView.swift'));
     shell.sed('-i', /--ID--/g, package_name, path.join(r, project_name+'-Info.plist'));
 
     //CordovaLib stuff
     copyJsAndCordovaLib(project_path, project_name, use_shared);
     copyScripts(project_path);
 
+    git.clone('git@github.com:XWebView/XWebView.git', 'c1397b01dd2f7521733d7908912c8699b9ef6abe', path.join(project_path, 'XWebView'));
     console.log(generateDoneMessage('create', use_shared));
     return Q.resolve();
 };
